@@ -32,7 +32,6 @@ local Comment = get_hl("Comment")
 
 local function mode_icon()
   local mode = vim.fn.mode()
-  current_mode_color = "#a6e22e"
 
   return ({
     n = "  NORMAL",
@@ -147,12 +146,12 @@ _G.file_size = file_size
 -- ----------------------------------------------------------------------------
 
 local function update_highlights()
-  local bg = hl_color(Normal)
-  local status_bg = hl_color(Status)
+  local status_bg = "#1e1e1e"
+  local green_fg = "#a6e22e"
 
   vim.api.nvim_set_hl(0, "SLMode", {
-    fg = "#1e1e1e",
-    bg = "#a6e22e",
+    fg = status_bg,
+    bg = green_fg,
     bold = true,
   })
 
@@ -162,7 +161,7 @@ local function update_highlights()
   })
 
   vim.api.nvim_set_hl(0, "SLGit", {
-    fg = "#a6e22e", -- 🔥 dynamic git color = mode color
+    fg = green_fg,
     bg = status_bg,
   })
 
