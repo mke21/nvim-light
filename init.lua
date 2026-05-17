@@ -5,10 +5,13 @@ vim.pack.add({
   'https://github.com/mason-org/mason.nvim',
   'https://github.com/tpope/vim-fugitive',
   'https://github.com/github/copilot.vim',
+  'https://github.com/nvim-lua/plenary.nvim',
+  'https://github.com/nvim-telescope/telescope.nvim',
 })
 
 require("oil").setup()
 require("mason").setup()
+require("telescope").setup({})
 
 -- LSP
 vim.lsp.enable('basedpyright')
@@ -143,6 +146,21 @@ vim.keymap.set("x", "<M-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 -- orientatie
 --
 vim.keymap.set ('n', '<leader>cd', ':cd %:p:h<CR>:pwd<CR>', {desc ="Set working directory to current file"})
+-- telescope
+vim.keymap.set("n", "<leader>ff", function()
+  require("telescope.builtin").find_files()
+end)
+
+vim.keymap.set("n", "<leader>fg", function()
+  require("telescope.builtin").live_grep()
+end)
+
+vim.keymap.set("n", "<leader>fb", function()
+  require("telescope.builtin").buffers()
+end)
+
+-- Oil
+vim.keymap.set("n", "<c-e>", ":Oil<CR>", { desc = "Open Oil file explorer" })
 
 -- commandline completion
 vim.opt.wildmenu = true
