@@ -196,6 +196,7 @@ local active_statusline = table.concat({
   "  ",
   "%f",
   " %h%m%r",
+  "",
   "%{v:lua.git_branch()}",
   "",
   "%{v:lua.file_type()}",
