@@ -1,100 +1,62 @@
 -- ============================================================================
--- FAST MINIMAL STATUSLINE
+-- FAST MINIMAL STATUSLINE (UNOKAI / MONOKAI STYLE DYNAMIC)
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- HIGHLIGHTS
+-- HIGHLIGHTS HELPERS
 -- ----------------------------------------------------------------------------
 
-vim.api.nvim_set_hl(0, "StatusLineBold", {
-  bold = true,
-})
+local function get_hl(name)
+  local hl = vim.api.nvim_get_hl(0, { name = name })
+  return {
+    fg = hl.fg,
+    bg = hl.bg,
+  }
+end
+
+local function hl_color(hl)
+  if not hl or not hl.fg then return "#000000" end
+  return string.format("#%06x", hl.fg)
+end
+
+-- base theme colors (from your colorscheme: unokai / monokai)
+local Normal = get_hl("Normal")
+local Status = get_hl("StatusLine")
+local Comment = get_hl("Comment")
+
 
 -- ----------------------------------------------------------------------------
--- FILETYPE ICONS
+-- MODE HELPERS
 -- ----------------------------------------------------------------------------
 
-local filetype_icons = {
-  lua = " ",
-  python = " ",
-  javascript = " ",
-  typescript = " ",
-  javascriptreact = " ",
-  typescriptreact = " ",
-  html = " ",
-  css = " ",
-  scss = " ",
-  json = " ",
-  markdown = " ",
-  vim = " ",
-  sh = " ",
-  bash = " ",
-  zsh = " ",
-  rust = " ",
-  go = " ",
-  c = " ",
-  cpp = " ",
-  java = " ",
-  php = " ",
-  ruby = " ",
-  swift = " ",
-  kotlin = "󱈙 ",
-  dart = " ",
-  elixir = " ",
-  haskell = " ",
-  sql = " ",
-  yaml = "󰈙 ",
-  toml = " ",
-  xml = "󰗀 ",
-  dockerfile = " ",
-  gitcommit = " ",
-  gitconfig = "󰊢 ",
-  vue = "󰡄 ",
-  svelte = " ",
-  astro = " ",
-}
-
--- ----------------------------------------------------------------------------
--- MODE
--- ----------------------------------------------------------------------------
-
-local mode_map = {
-  n = "  NORMAL",
-  i = "  INSERT",
-  v = "  VISUAL",
-  V = "  V-LINE",
-  ["\22"] = "  V-BLOCK",
-  c = "  COMMAND",
-  s = "  SELECT",
-  S = "  S-LINE",
-  ["\19"] = "  S-BLOCK",
-  R = "  REPLACE",
-  r = "  REPLACE",
-  ["!"] = "  SHELL",
-  t = "  TERMINAL",
-}
 
 local function mode_icon()
-  return mode_map[vim.fn.mode()] or "  UNKNOWN"
+  local mode = vim.fn.mode()
+  current_mode_color = "#a6e22e"
+
+  return ({
+    n = "  NORMAL",
+    i = "  INSERT",
+    v = "  VISUAL",
+    V = "  V-LINE",
+    ["\22"] = "  V-BLOCK",
+    c = "  COMMAND",
+    R = "  REPLACE",
+    t = "  TERMINAL",
+  })[mode] or "  UNKNOWN"
 end
 
 -- ----------------------------------------------------------------------------
--- GIT BRANCH
+-- GIT BRANCH (dynamic styling)
 -- ----------------------------------------------------------------------------
 
-local git_cache = {
-  branch = "",
-  cwd = "",
-  timestamp = 0,
-}
-
+local git_cache = { branch = "", cwd = "", timestamp = 0 }
 local uv = vim.uv or vim.loop
 
 local function git_branch()
   local now = uv.now()
   local cwd = vim.fn.expand("%:p:h")
 
-  -- Refresh cache every 5 seconds OR when changing directory
   if now - git_cache.timestamp < 5000 and cwd == git_cache.cwd then
     return git_cache.branch
   end
@@ -109,42 +71,46 @@ local function git_branch()
     return ""
   end
 
-  local head_path = git_dir .. "/HEAD"
-  local head_file = io.open(head_path, "r")
-
-  if not head_file then
-    git_cache.branch = ""
-    return ""
-  end
+  local head_file = io.open(git_dir .. "/HEAD", "r")
+  if not head_file then return "" end
 
   local head = head_file:read("*l")
   head_file:close()
 
   local branch = head and head:match("ref: refs/heads/(.+)")
+  if not branch then return "" end
 
-  if branch then
-    git_cache.branch = "  " .. branch .. " "
-  else
-    git_cache.branch = ""
-  end
 
+  git_cache.branch = "  " .. branch .. " "
   return git_cache.branch
 end
 
 -- ----------------------------------------------------------------------------
--- FILETYPE
+-- FILETYPE ICONS
 -- ----------------------------------------------------------------------------
+
+local filetype_icons = {
+  lua = " ",
+  python = " ",
+  javascript = " ",
+  typescript = " ",
+  html = " ",
+  css = " ",
+  json = " ",
+  markdown = " ",
+  rust = " ",
+  go = " ",
+  c = " ",
+  cpp = " ",
+  java = " ",
+  yaml = "󰈙 ",
+  dockerfile = " ",
+}
 
 local function file_type()
   local ft = vim.bo.filetype
-
-  if ft == "" then
-    return "  "
-  end
-
-  local icon = filetype_icons[ft] or " "
-
-  return " " .. icon .. ft .. " "
+  if ft == "" then return "  " end
+  return " " .. (filetype_icons[ft] or " ") .. ft .. " "
 end
 
 -- ----------------------------------------------------------------------------
@@ -153,22 +119,14 @@ end
 
 local function file_size()
   local file = vim.fn.expand("%")
-
-  if file == "" then
-    return ""
-  end
+  if file == "" then return "" end
 
   local size = vim.fn.getfsize(file)
-
-  if size < 0 then
-    return ""
-  end
+  if size < 0 then return "" end
 
   if size < 1024 then
     return string.format("  %dB ", size)
-  end
-
-  if size < 1024 * 1024 then
+  elseif size < 1024 * 1024 then
     return string.format("  %.1fK ", size / 1024)
   end
 
@@ -185,41 +143,98 @@ _G.file_type = file_type
 _G.file_size = file_size
 
 -- ----------------------------------------------------------------------------
--- STATUSLINE
+-- DYNAMIC HIGHLIGHTS
+-- ----------------------------------------------------------------------------
+
+local function update_highlights()
+  local bg = hl_color(Normal)
+  local status_bg = hl_color(Status)
+
+  vim.api.nvim_set_hl(0, "SLMode", {
+    fg = "#1e1e1e",
+    bg = "#a6e22e",
+    bold = true,
+  })
+
+  vim.api.nvim_set_hl(0, "SLFile", {
+    fg = Normal.fg and string.format("#%06x", Normal.fg) or "#ffffff",
+    bg = status_bg,
+  })
+
+  vim.api.nvim_set_hl(0, "SLGit", {
+    fg = "#a6e22e", -- 🔥 dynamic git color = mode color
+    bg = status_bg,
+  })
+
+  vim.api.nvim_set_hl(0, "SLDim", {
+    fg = Comment.fg and string.format("#%06x", Comment.fg) or "#888888",
+    bg = status_bg,
+  })
+
+  -- powerline separators that blend
+  vim.api.nvim_set_hl(0, "SLSep1", {
+    fg = current_mode_color,
+    bg = status_bg,
+  })
+
+  vim.api.nvim_set_hl(0, "SLSep2", {
+    fg = status_bg,
+    bg = status_bg,
+  })
+end
+
+-- update on mode change
+vim.api.nvim_create_autocmd({ "ModeChanged", "BufEnter", "WinEnter", "ColorScheme" }, {
+  callback = function()
+    update_highlights()
+  end,
+})
+
+-- ----------------------------------------------------------------------------
+-- STATUSLINE (ACTIVE)
 -- ----------------------------------------------------------------------------
 
 local active_statusline = table.concat({
-  "  ",
-  "%#StatusLineBold#",
-  "%{v:lua.mode_icon()}",
-  "%#StatusLine#",
-  "  ",
-  "%f",
-  " %h%m%r",
-  "",
-  "%{v:lua.git_branch()}",
-  "",
-  "%{v:lua.file_type()}",
-  "",
-  "%{v:lua.file_size()}",
-  "%=",
-  "  %l:%c ",
-  "%P ",
-})
+  " ",
 
-local inactive_statusline = table.concat({
-  "  ",
-  "%f",
-  " %h%m%r",
-  "  ",
-  "%{v:lua.file_type()}",
+  "%#SLMode#",
+  "%{v:lua.mode_icon()} ",
+
+  "%#SLSep1#",
+
+  "%#SLFile#",
+  " %f %h%m%r ",
+
+  "%#SLSep1#",
+
+  "%#SLGit#",
+  "%{v:lua.git_branch()}",
+
+  -- 🔥 FILETYPE + FILE SIZE (terug toegevoegd)
+  "%#SLFile#",
+  "  %{v:lua.file_type()}",
+  " %{v:lua.file_size()} ",
+
+  "%#SLDim#",
   "%=",
-  " %l:%c ",
-  "%P ",
+
+  "%#SLDim#",
+  "  %l:%c %P ",
 })
 
 -- ----------------------------------------------------------------------------
--- ACTIVE / INACTIVE WINDOW HANDLING
+-- STATUSLINE (INACTIVE)
+-- ----------------------------------------------------------------------------
+
+local inactive_statusline = table.concat({
+  " ",
+  "%f %h%m%r",
+  " %=",
+  " %l:%c %P ",
+})
+
+-- ----------------------------------------------------------------------------
+-- AUTOCMDS
 -- ----------------------------------------------------------------------------
 
 vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
@@ -234,5 +249,6 @@ vim.api.nvim_create_autocmd({ "WinLeave", "BufLeave" }, {
   end,
 })
 
--- Set initial statusline
+-- initial
 vim.o.statusline = active_statusline
+update_highlights()
