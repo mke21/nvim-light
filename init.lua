@@ -2,11 +2,28 @@
 vim.pack.add({
   'https://github.com/stevearc/oil.nvim',
   'https://github.com/neovim/nvim-lspconfig',
-  'https://github.com/mason-org/mason.nvim'
+  'https://github.com/mason-org/mason.nvim',
+  'https://github.com/tpope/vim-fugitive',
+  'https://github.com/github/copilot.vim',
 })
 
 require("oil").setup()
 require("mason").setup()
+
+-- LSP
+vim.lsp.enable('basedpyright')
+vim.lsp.enable('marksman')
+vim.lsp.enable('lua_ls')
+vim.lsp.config("lua_ls", {
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { "vim" },
+      },
+    },
+  },
+})
+vim.lsp.enable("lua_ls")
 
  -- theme & transparency
  vim.cmd.colorscheme("unokai")
@@ -23,12 +40,22 @@ require("mason").setup()
  vim.opt.sidescrolloff = 8         -- 8 columns left/right cursor
 
  --indentation
-vim.opt.tabstop = 2
-vim.opt.shiftwidth = 2
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
 vim.opt.softtabstop = 2
 vim.opt.expandtab = true           -- use spaces instead of tab
 vim.opt.smartindent = true
 vim.opt.autoindent = true
+
+vim.api.nvim_create_autocmd("FileType", { -- set tabstop to 2 spaces in javascript files
+	pattern = "javascript",
+	command = "setlocal ts=2 sw=2 sts=2"})
+vim.api.nvim_create_autocmd("FileType", { -- set tabstop to 2 spaces in lua files
+	pattern = "lua",
+	command = "setlocal ts=2 sw=2 sts=2"})
+vim.api.nvim_create_autocmd("FileType", { -- set maximum width of text to 80 characters in  markdown files
+	pattern = "markdown",
+	command = "setlocal textwidth=80"})
 
 -- search settings
 vim.opt.ignorecase = true
@@ -74,7 +101,7 @@ vim.opt.iskeyword:append("-")
 vim.opt.path:append("**")
 vim.opt.selection = "exclusive"
 vim.opt.mouse = "a"
-vim.opt.clipboard:append("unnamedplus")
+vim.opt.clipboard = "unnamedplus"
 vim.opt.modifiable = true
 vim.opt.encoding = "UTF-8"
 
@@ -113,6 +140,10 @@ vim.keymap.set("n", "<M-k>", ":m .-2<CR>==", { desc = "Move line up" })
 vim.keymap.set("x", "<M-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 vim.keymap.set("x", "<M-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
+-- orientatie
+--
+vim.keymap.set ('n', '<leader>cd', ':cd %:p:h<CR>:pwd<CR>', {desc ="Set working directory to current file"})
+
 -- commandline completion
 vim.opt.wildmenu = true
 vim.opt.wildmode = "longest:full,full"
@@ -121,6 +152,13 @@ vim.opt.wildignore:append({"*.o", "*.obj", "*.pyc", "*.class", "*.jar" })
 -- Better indenting in visual mode
 vim.keymap.set("x", "<", "<gv", { desc = "Indent left and reselect" })
 vim.keymap.set("x", ">", ">gv", { desc = "Indent right and reselect" })
+
+-- copilot
+vim.api.nvim_set_keymap('i', '<m-c>', 'copilot#Accept("<CR>")', {expr = true, silent = true, desc = "Accept Copilot suggestion"})
+vim.api.nvim_set_keymap('i', '<m-e>', 'copilot#Dismiss()', {expr = true, silent = true, desc = "Dismiss Copilot suggestion"})
+
+-- toggle spellcheck
+vim.keymap.set('n', '<leader>sp', ':setlocal spell!<CR>', { desc = "Toggle spellcheck" })
 
 -- Performance
 vim.opt.diffopt:append("linematch:60")
