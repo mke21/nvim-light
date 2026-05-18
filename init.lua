@@ -7,16 +7,18 @@ vim.pack.add({
     'https://github.com/github/copilot.vim',
     'https://github.com/nvim-lua/plenary.nvim',
     'https://github.com/nvim-telescope/telescope.nvim',
+    'https://github.com/folke/which-key.nvim',
 })
-
+require("nvim-web-devicons").setup()
 require("oil").setup()
 require("mason").setup()
-require("telescope").setup({})
+require("telescope").setup()
 
 -- LSP
 vim.lsp.enable('basedpyright')
 vim.lsp.enable('marksman')
-vim.lsp.enable('lua_ls')
+vim.lsp.enable('gopls')
+vim.lsp.enable('rust_analyzer')
 vim.lsp.config("lua_ls", {
     settings = {
         Lua = {
@@ -114,8 +116,8 @@ vim.keymap.set("n", "Y", "y$", { desc = "Yank to the endo fo line" })
 -- Center screen when jumping
 vim.keymap.set("n", "n", "nzzzv", { desc = "Next search result" })
 vim.keymap.set("n", "N", "Nzzzv", { desc = "Next search result" })
-vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down" })
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Half page up" })
+vim.keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Half page down" })
 
 -- Key mappings
 vim.g.mapleader = " "
@@ -144,7 +146,6 @@ vim.keymap.set("x", "<M-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" 
 vim.keymap.set("x", "<M-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
 -- orientatie
---
 vim.keymap.set ('n', '<leader>cd', ':cd %:p:h<CR>:pwd<CR>', {desc ="Set working directory to current file"})
 -- telescope
 vim.keymap.set("n", "<leader>ff", function()
@@ -174,28 +175,20 @@ vim.keymap.set("x", ">", ">gv", { desc = "Indent right and reselect" })
 -- copilot
 vim.g.copilot_assume_mapped = true
 vim.g.copilot_no_tab_map = true
-vim.keymap.set('i', '<M-c>', 'copilot#Accept("<CR>")', {
+vim.api.nvim_set_keymap('i', '<m-c>', 'copilot#Accept("<CR>")', {expr = true, silent = true})
+vim.api.nvim_set_keymap('i', '<M-e>', 'copilot#Dismiss()', {
   expr = true,
   silent = true,
-  desc = "Accept Copilot suggestion",
 })
 
-vim.keymap.set('i', '<M-e>', 'copilot#Dismiss()', {
+vim.api.nvim_set_keymap('i', '<M-]>', 'copilot#Next()', {
   expr = true,
   silent = true,
-  desc = "Dismiss Copilot suggestion",
 })
 
-vim.keymap.set('i', '<M-]>', 'copilot#Next()', {
+vim.api.nvim_set_keymap('i', '<M-[>', 'copilot#Previous()', {
   expr = true,
   silent = true,
-  desc = "Next Copilot suggestion",
-})
-
-vim.keymap.set('i', '<M-[>', 'copilot#Previous()', {
-  expr = true,
-  silent = true,
-  desc = "Previous Copilot suggestion",
 })
 
 -- toggle spellcheck
