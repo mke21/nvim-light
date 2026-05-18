@@ -17,8 +17,7 @@ require("telescope").setup()
 -- LSP
 vim.lsp.enable('basedpyright')
 vim.lsp.enable('marksman')
-vim.lsp.enable('gopls')
-vim.lsp.enable('rust_analyzer')
+vim.lsp.enable('typescript-language-server')
 vim.lsp.config("lua_ls", {
     settings = {
         Lua = {
