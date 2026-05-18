@@ -9,7 +9,6 @@ vim.pack.add({
     'https://github.com/nvim-telescope/telescope.nvim',
     'https://github.com/folke/which-key.nvim',
 })
-require("nvim-web-devicons").setup()
 require("oil").setup()
 require("mason").setup()
 require("telescope").setup()
