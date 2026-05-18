@@ -56,7 +56,7 @@ vim.api.nvim_create_autocmd("FileType", { -- set tabstop to 2 spaces in javascri
 vim.api.nvim_create_autocmd("FileType", { -- set tabstop to 2 spaces in lua files
     pattern = "lua",
     command = "setlocal ts=2 sw=2 sts=2"})
-vim.api.nvim_create_autocmd("FileType", { -- set maximum width of text to 80 characters in  markdown files
+vim.api.nvim_create_autocmd("FileType", { -- set maximum width of text to 100 characters in  markdown files
     pattern = "markdown",
     command = "setlocal textwidth=100"})
 
@@ -172,8 +172,31 @@ vim.keymap.set("x", "<", "<gv", { desc = "Indent left and reselect" })
 vim.keymap.set("x", ">", ">gv", { desc = "Indent right and reselect" })
 
 -- copilot
-vim.api.nvim_set_keymap('i', '<m-c>', 'copilot#Accept("<CR>")', {expr = true, silent = true, desc = "Accept Copilot suggestion"})
-vim.api.nvim_set_keymap('i', '<m-e>', 'copilot#Dismiss()', {expr = true, silent = true, desc = "Dismiss Copilot suggestion"})
+vim.g.copilot_assume_mapped = true
+vim.g.copilot_no_tab_map = true
+vim.keymap.set('i', '<M-c>', 'copilot#Accept("<CR>")', {
+  expr = true,
+  silent = true,
+  desc = "Accept Copilot suggestion",
+})
+
+vim.keymap.set('i', '<M-e>', 'copilot#Dismiss()', {
+  expr = true,
+  silent = true,
+  desc = "Dismiss Copilot suggestion",
+})
+
+vim.keymap.set('i', '<M-]>', 'copilot#Next()', {
+  expr = true,
+  silent = true,
+  desc = "Next Copilot suggestion",
+})
+
+vim.keymap.set('i', '<M-[>', 'copilot#Previous()', {
+  expr = true,
+  silent = true,
+  desc = "Previous Copilot suggestion",
+})
 
 -- toggle spellcheck
 vim.keymap.set('n', '<leader>sp', ':setlocal spell!<CR>', { desc = "Toggle spellcheck" })
