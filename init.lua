@@ -69,7 +69,7 @@ vim.opt.incsearch = true           -- show matches as you type
 -- visual settings
 vim.opt.termguicolors = true
 vim.opt.signcolumn = "yes"
-vim.opt.colorcolumn = "100"
+-- vim.opt.colorcolumn = "100"
 vim.opt.showmatch = true          -- show matching brackets
 vim.opt.matchtime = 2             -- how long matching brackets shown
 vim.opt.cmdheight = 1
@@ -295,13 +295,15 @@ vim.keymap.set("t", "<Esc>",
 
 
 -- ============================================================================
--- Status line
+-- Separate configs 
 -- ============================================================================
 require("statusline")
+require("neovide")
 
 -- ============================================================================
 -- BUFFER/FILE UTILITIES
 -- ============================================================================
 -- Close all buffers except current
 vim.keymap.set('n', '<leader>bo', ':%bd|e#|bd#<CR>', { desc = 'Close all buffers except current' })
+
 
