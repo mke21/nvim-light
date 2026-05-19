@@ -30,7 +30,7 @@ vim.lsp.config("lua_ls", {
     },
 })
 vim.lsp.enable("lua_ls")
----
+
 --- autocomplete
 local cmp = require("cmp")
 
@@ -110,13 +110,13 @@ vim.opt.matchtime = 2             -- how long matching brackets shown
 vim.opt.cmdheight = 1
 vim.opt.completeopt = "menuone,noinsert,noselect"
 vim.opt.showmode = false
-vim.opt.pumheight = 10
-vim.opt.pumblend = 10
-vim.opt.winblend = 0
-vim.opt.conceallevel = 0
-vim.opt.concealcursor = ""
-vim.opt.lazyredraw = true
-vim.opt.synmaxcol = 300
+vim.opt.pumheight = 10    -- max height of the completion menu
+vim.opt.pumblend = 10     -- transparency of the completion menu
+vim.opt.winblend = 0      -- transparency of floating windows
+vim.opt.conceallevel = 0 -- don't conceal text (useful for markdown)
+vim.opt.concealcursor = "" -- don't conceal in the cursor line
+vim.opt.lazyredraw = true -- don't redraw while executing macros (good performance when running macros)
+vim.opt.synmaxcol = 300  -- don't syntax highlight long lines (good performance when editing large files)
 
 -- Filehandling
 vim.opt.backup = false
@@ -371,11 +371,10 @@ cmp.setup({
 -- ============================================================================
 require("statusline")
 require("neovide")
+require("commands")
 
 -- ============================================================================
 -- BUFFER/FILE UTILITIES
 -- ============================================================================
 -- Close all buffers except current
 vim.keymap.set('n', '<leader>bo', ':%bd|e#|bd#<CR>', { desc = 'Close all buffers except current' })
-
-
