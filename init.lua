@@ -8,6 +8,9 @@ vim.pack.add({
     'https://github.com/nvim-lua/plenary.nvim',
     'https://github.com/nvim-telescope/telescope.nvim',
     'https://github.com/folke/which-key.nvim',
+    'https://github.com/hrsh7th/nvim-cmp',
+    'https://github.com/hrsh7th/cmp-nvim-lsp',
+
 })
 require("oil").setup()
 require("mason").setup()
@@ -27,6 +30,22 @@ vim.lsp.config("lua_ls", {
     },
 })
 vim.lsp.enable("lua_ls")
+---
+--- autocomplete
+local cmp = require("cmp")
+
+cmp.setup({
+  mapping = {
+    ["<C-Space>"] = cmp.mapping.complete(),
+    ["<CR>"] = cmp.mapping.confirm({ select = true }),
+  },
+  sources = {
+    { name = "nvim_lsp" },
+  },
+})
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+
 
 -- theme & transparency
 vim.cmd.colorscheme("unokai")
@@ -319,6 +338,17 @@ FloatingTerminal, { noremap = true, silent = true, desc = "Toggle floating termi
 vim.keymap.set("t", "<Esc>", 
 CloseFloatingTerminal, { noremap = true, silent = true, desc = "Close floating terminal from terminal mode" })
 
+--- Set autocompletion
+local cmp = require("cmp")
+cmp.setup({
+    mapping = {
+        ['<C-Space>'] = cmp.mapping.complete(),
+        ['<CR>'] = cmp.mapping.confirm({ select = true }),
+      },
+    sources = {
+        { name = 'nvim_lsp' },
+    },
+  })
 
 -- ============================================================================
 -- Separate configs 
