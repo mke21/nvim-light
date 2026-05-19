@@ -1,72 +1,88 @@
 -- ============================================================================
--- FAST MINIMAL STATUSLINE (UNOKAI / MONOKAI STYLE DYNAMIC)
+-- STATUSLINE v3 (lualine-grade, stable, cached, zero flicker)
 -- ============================================================================
 
+local uv = vim.uv or vim.loop
+
 -- ----------------------------------------------------------------------------
--- HIGHLIGHTS HELPERS
+-- STATE + CACHE
 -- ----------------------------------------------------------------------------
 
-local function get_hl(name)
-  local hl = vim.api.nvim_get_hl(0, { name = name })
-  return {
-    fg = hl.fg,
-    bg = hl.bg,
+local S = {
+  mode = "n",
+  cache = {},
+}
+
+local function now()
+  return uv.hrtime() / 1e6
+end
+
+local function cache_get(key)
+  local c = S.cache[key]
+  if c and c.t > now() then
+    return c.v
+  end
+end
+
+local function cache_set(key, val, ttl)
+  S.cache[key] = {
+    v = val,
+    t = now() + (ttl or 2000),
   }
 end
-
-local function hl_color(hl)
-  if not hl or not hl.fg then return "#000000" end
-  return string.format("#%06x", hl.fg)
-end
-
--- base theme colors (from your colorscheme: unokai / monokai)
-local Normal = get_hl("Normal")
-local Status = get_hl("StatusLine")
-local Comment = get_hl("Comment")
-
 
 -- ----------------------------------------------------------------------------
 -- MODE HELPERS
 -- ----------------------------------------------------------------------------
 
+local function mode()
+  return vim.fn.mode()
+end
 
-local function mode_icon()
-  local mode = vim.fn.mode()
-
+local function mode_label(m)
   return ({
-    n = "  NORMAL",
-    i = "  INSERT",
-    v = "  VISUAL",
-    V = "  V-LINE",
-    ["\22"] = "  V-BLOCK",
-    c = "  COMMAND",
-    R = "  REPLACE",
-    t = "  TERMINAL",
-  })[mode] or "  UNKNOWN"
+    n = "NORMAL",
+    i = "INSERT",
+    v = "VISUAL",
+    V = "V-LINE",
+    ["\22"] = "V-BLOCK",
+    c = "COMMAND",
+    R = "REPLACE",
+    t = "TERMINAL",
+    s = "SELECT",
+    S = "S-LINE",
+  })[m] or "UNKNOWN"
+end
+
+local function mode_color(m)
+  return ({
+    n = "#a6e22e",
+    i = "#66d9ef",
+    v = "#fd971f",
+    V = "#fd971f",
+    ["\22"] = "#fd971f",
+    c = "#ae81ff",
+    R = "#f92672",
+    t = "#66d9ef",
+    s = "#fd971f",
+    S = "#fd971f",
+  })[m] or "#a6e22e"
 end
 
 -- ----------------------------------------------------------------------------
--- GIT BRANCH (dynamic styling)
+-- GIT (cached, no IO spam)
 -- ----------------------------------------------------------------------------
 
-local git_cache = { branch = "", cwd = "", timestamp = 0 }
-local uv = vim.uv or vim.loop
-
 local function git_branch()
-  local now = uv.now()
-  local cwd = vim.fn.expand("%:p:h")
+  local cwd = vim.fn.getcwd()
+  local key = "git:" .. cwd
 
-  if now - git_cache.timestamp < 5000 and cwd == git_cache.cwd then
-    return git_cache.branch
-  end
-
-  git_cache.timestamp = now
-  git_cache.cwd = cwd
+  local cached = cache_get(key)
+  if cached then return cached end
 
   local git_dir = vim.fn.finddir(".git", cwd .. ";")
-
   if git_dir == "" then
-    git_cache.branch = ""
+    cache_set(key, "", 5000)
     return ""
   end
 
@@ -76,178 +92,158 @@ local function git_branch()
   local head = head_file:read("*l")
   head_file:close()
 
-  local branch = head and head:match("ref: refs/heads/(.+)")
-  if not branch then return "" end
+  local branch = head and head:match("ref: refs/heads/(.+)") or ""
 
+  local out = branch ~= "" and ("  " .. branch .. " ") or ""
+  cache_set(key, out, 3000)
 
-  git_cache.branch = "  " .. branch .. " "
-  return git_cache.branch
+  return out
 end
 
 -- ----------------------------------------------------------------------------
--- FILETYPE ICONS
+-- FILE INFO
 -- ----------------------------------------------------------------------------
 
-local filetype_icons = {
-  lua = " ",
-  python = " ",
-  javascript = " ",
-  typescript = " ",
-  html = " ",
-  css = " ",
-  json = " ",
-  markdown = " ",
-  rust = " ",
-  go = " ",
-  c = " ",
-  cpp = " ",
-  java = " ",
-  yaml = "󰈙 ",
-  dockerfile = " ",
+local file_icons = {
+  lua = "", python = "", javascript = "",
+  typescript = "", html = "", css = "",
+  json = "", markdown = "", rust = "",
+  go = "", c = "", cpp = "",
+  java = "", yaml = "󰈙", dockerfile = "",
 }
 
-local function file_type()
+local function filetype()
   local ft = vim.bo.filetype
-  if ft == "" then return "  " end
-  return " " .. (filetype_icons[ft] or " ") .. ft .. " "
+  return ft == "" and "" or (file_icons[ft] or "") .. " " .. ft
 end
 
--- ----------------------------------------------------------------------------
--- FILE SIZE
--- ----------------------------------------------------------------------------
-
-local function file_size()
-  local file = vim.fn.expand("%")
+local function filesize()
+  local file = vim.api.nvim_buf_get_name(0)
   if file == "" then return "" end
+
+  local key = "size:" .. file
+  local cached = cache_get(key)
+  if cached then return cached end
 
   local size = vim.fn.getfsize(file)
   if size < 0 then return "" end
 
+  local out
   if size < 1024 then
-    return string.format("  %dB ", size)
+    out = string.format("%dB", size)
   elseif size < 1024 * 1024 then
-    return string.format("  %.1fK ", size / 1024)
+    out = string.format("%.1fK", size / 1024)
+  else
+    out = string.format("%.1fM", size / 1024 / 1024)
   end
 
-  return string.format("  %.1fM ", size / 1024 / 1024)
+  cache_set(key, out, 3000)
+  return out
 end
 
 -- ----------------------------------------------------------------------------
--- GLOBALS
+-- GLOBAL EXPORTS
 -- ----------------------------------------------------------------------------
 
-_G.mode_icon = mode_icon
 _G.git_branch = git_branch
-_G.file_type = file_type
-_G.file_size = file_size
+_G.filetype = filetype
+_G.filesize = filesize
 
 -- ----------------------------------------------------------------------------
--- DYNAMIC HIGHLIGHTS
+-- HIGHLIGHTS (mode-driven, stable)
 -- ----------------------------------------------------------------------------
 
-local function update_highlights()
+local function update()
+  S.mode = mode()
+
   local status_bg = "#1e1e1e"
-  local green_fg = "#a6e22e"
+  local mcol = mode_color(S.mode)
 
   vim.api.nvim_set_hl(0, "SLMode", {
     fg = status_bg,
-    bg = green_fg,
+    bg = mcol,
     bold = true,
   })
 
+  vim.api.nvim_set_hl(0, "SLSep1", {
+    fg = mcol,
+    bg = status_bg,
+  })
+
   vim.api.nvim_set_hl(0, "SLFile", {
-    fg = Normal.fg and string.format("#%06x", Normal.fg) or "#ffffff",
+    fg = "#ffffff",
     bg = status_bg,
   })
 
   vim.api.nvim_set_hl(0, "SLGit", {
-    fg = green_fg,
+    fg = "#a6e22e",
     bg = status_bg,
   })
 
   vim.api.nvim_set_hl(0, "SLDim", {
-    fg = Comment.fg and string.format("#%06x", Comment.fg) or "#888888",
+    fg = "#777777",
     bg = status_bg,
   })
 
-  -- powerline separators that blend
-  vim.api.nvim_set_hl(0, "SLSep1", {
-    fg = current_mode_color,
-    bg = status_bg,
-  })
+  vim.cmd("redrawstatus")
+end
 
-  vim.api.nvim_set_hl(0, "SLSep2", {
-    fg = status_bg,
-    bg = status_bg,
+-- ----------------------------------------------------------------------------
+-- DEBOUNCED AUTOCMD (zero flicker)
+-- ----------------------------------------------------------------------------
+
+local timer = uv.new_timer()
+
+local function schedule()
+  if timer:is_active() then
+    timer:stop()
+  end
+
+  timer:start(30, 0, vim.schedule_wrap(update))
+end
+
+vim.api.nvim_create_autocmd(
+  { "ModeChanged", "BufEnter", "WinEnter", "ColorScheme" },
+  { callback = schedule }
+)
+
+-- initial
+update()
+
+-- ----------------------------------------------------------------------------
+-- STATUSLINE RENDER (lualine-style pure function)
+-- ----------------------------------------------------------------------------
+
+function _G.stl()
+  return table.concat({
+    " ",
+
+    "%#SLMode#",
+    " " .. mode_label(S.mode) .. " ",
+
+    "%#SLSep1#%*",
+
+    "%#SLFile#",
+    " %f %h%m%r ",
+
+    "%#SLSep1#%*",
+
+    "%#SLGit#",
+    git_branch(),
+
+    " %#SLFile# ",
+    filetype(),
+
+    " ",
+    filesize(),
+    " ",
+
+    "%#SLDim#",
+    "%=",
+
+    "%#SLDim#",
+    "  %l:%c %P ",
   })
 end
 
--- update on mode change
-vim.api.nvim_create_autocmd({ "ModeChanged", "BufEnter", "WinEnter", "ColorScheme" }, {
-  callback = function()
-    update_highlights()
-  end,
-})
-
--- ----------------------------------------------------------------------------
--- STATUSLINE (ACTIVE)
--- ----------------------------------------------------------------------------
-
-local active_statusline = table.concat({
-  " ",
-
-  "%#SLMode#",
-  "%{v:lua.mode_icon()} ",
-
-  "%#SLSep1#",
-
-  "%#SLFile#",
-  " %f %h%m%r ",
-
-  "%#SLSep1#",
-
-  "%#SLGit#",
-  "%{v:lua.git_branch()}",
-
-  -- 🔥 FILETYPE + FILE SIZE (terug toegevoegd)
-  "%#SLFile#",
-  "  %{v:lua.file_type()}",
-  " %{v:lua.file_size()} ",
-
-  "%#SLDim#",
-  "%=",
-
-  "%#SLDim#",
-  "  %l:%c %P ",
-})
-
--- ----------------------------------------------------------------------------
--- STATUSLINE (INACTIVE)
--- ----------------------------------------------------------------------------
-
-local inactive_statusline = table.concat({
-  " ",
-  "%f %h%m%r",
-  " %=",
-  " %l:%c %P ",
-})
-
--- ----------------------------------------------------------------------------
--- AUTOCMDS
--- ----------------------------------------------------------------------------
-
-vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
-  callback = function()
-    vim.opt_local.statusline = active_statusline
-  end,
-})
-
-vim.api.nvim_create_autocmd({ "WinLeave", "BufLeave" }, {
-  callback = function()
-    vim.opt_local.statusline = inactive_statusline
-  end,
-})
-
--- initial
-vim.o.statusline = active_statusline
-update_highlights()
+vim.o.statusline = "%!v:lua.stl()"
