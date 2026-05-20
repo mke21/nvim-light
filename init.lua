@@ -1,3 +1,4 @@
+
 -- Packages
 vim.pack.add({
     'https://github.com/stevearc/oil.nvim',
@@ -34,6 +35,9 @@ vim.lsp.enable('basedpyright')
 vim.lsp.enable('marksman')
 vim.lsp.enable('typescript-language-server')
 vim.lsp.config("lua_ls", {
+    cmd = { "lua-language-server" },
+    filetypes = { "lua" },
+    root_markers = { '.luarc.json', '.git' },
     settings = {
         Lua = {
             diagnostics = {
@@ -98,12 +102,15 @@ vim.opt.expandtab = true           -- use spaces instead of tab
 vim.opt.smartindent = true
 vim.opt.autoindent = true
 
-vim.api.nvim_create_autocmd("FileType", { -- set tabstop to 2 spaces in javascript files
-    pattern = "javascript",
-    command = "setlocal ts=2 sw=2 sts=2"})
-vim.api.nvim_create_autocmd("FileType", { -- set tabstop to 2 spaces in lua files
-    pattern = "lua",
-    command = "setlocal ts=2 sw=2 sts=2"})
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = {"lua", "javascript", "typescript"},
+  callback = function()
+    vim.bo.tabstop = 2
+    vim.bo.shiftwidth = 2
+    vim.bo.softtabstop = 2
+    vim.bo.expandtab = true
+  end,
+})
 vim.api.nvim_create_autocmd("FileType", { -- set maximum width of text to 100 characters in  markdown files
     pattern = "markdown",
     command = "setlocal textwidth=100"})
@@ -259,6 +266,7 @@ local undodir = vim.fn.expand("~/.local/share/nvimundo")
 if vim.fn.isdirectory(undodir) == 0 then
     vim.fn.mkdir(undodir, "p")
 end
+
 
 -- ============================================================================
 -- FLOATING TERMINAL

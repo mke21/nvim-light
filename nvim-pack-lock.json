@@ -28,6 +28,10 @@
       "rev": "0fcc83805ad11cf714a949c98c605ed717e0b83e",
       "src": "https://github.com/stevearc/oil.nvim"
     },
+    "tree-sitter-manager.nvim": {
+      "rev": "f18e545c6ccbbae9875e63a2a7b8e8a9678a242e",
+      "src": "https://github.com/romus204/tree-sitter-manager.nvim"
+    },
     "vim-fugitive": {
       "rev": "3b753cf8c6a4dcde6edee8827d464ba9b8c4a6f0",
       "src": "https://github.com/tpope/vim-fugitive"
