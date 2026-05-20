@@ -10,7 +10,6 @@ vim.pack.add({
     'https://github.com/folke/which-key.nvim',
     'https://github.com/hrsh7th/nvim-cmp',
     'https://github.com/hrsh7th/cmp-nvim-lsp',
-
 })
 require("oil").setup()
 require("mason").setup()
