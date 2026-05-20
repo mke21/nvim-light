@@ -226,7 +226,7 @@ function _G.stl()
     "%#SLFile#",
     " %f %h%m%r ",
 
-    "%#SLSep1#%*",
+    "%#SLSep1#%*",
 
     "%#SLGit#",
     git_branch(),
