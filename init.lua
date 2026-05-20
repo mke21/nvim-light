@@ -5,15 +5,29 @@ vim.pack.add({
     'https://github.com/mason-org/mason.nvim',
     'https://github.com/tpope/vim-fugitive',
     'https://github.com/github/copilot.vim',
-    'https://github.com/nvim-lua/plenary.nvim',
-    'https://github.com/nvim-telescope/telescope.nvim',
     'https://github.com/folke/which-key.nvim',
     'https://github.com/hrsh7th/nvim-cmp',
     'https://github.com/hrsh7th/cmp-nvim-lsp',
+    'https://github.com/nvim-mini/mini.pick',
 })
 require("oil").setup()
 require("mason").setup()
-require("telescope").setup()
+  local win_config = function()
+    local height = math.floor(0.618 * vim.o.lines)
+    local width = math.floor(0.618 * vim.o.columns)
+    return {
+      anchor = 'NW', height = height, width = width,
+      row = math.floor(0.5 * (vim.o.lines - height)),
+      col = math.floor(0.5 * (vim.o.columns - width)),
+    }
+  end
+
+require('mini.pick').setup({
+  options = {
+    use_cache = true,
+  },
+  window = { config = win_config },
+})
 
 -- LSP
 vim.lsp.enable('basedpyright')
@@ -181,15 +195,15 @@ vim.keymap.set("x", "<M-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 vim.keymap.set ('n', '<leader>cd', ':cd %:p:h<CR>:pwd<CR>', {desc ="Set working directory to current file"})
 -- telescope
 vim.keymap.set("n", "<leader>ff", function()
-    require("telescope.builtin").find_files()
+    require("mini.pick").builtin.files()
 end)
 
 vim.keymap.set("n", "<leader>fg", function()
-    require("telescope.builtin").live_grep()
+    require("mini.pick").builtin.grep_live()
 end)
 
 vim.keymap.set("n", "<leader>fb", function()
-    require("telescope.builtin").buffers()
+    require("mini.pick").builtin.buffers()
 end)
 
 -- Oil
