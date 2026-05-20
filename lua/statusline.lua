@@ -216,6 +216,7 @@ update()
 
 function _G.stl()
   return table.concat({
+    "%#SLDim#",
     " ",
 
     "%#SLMode#",
