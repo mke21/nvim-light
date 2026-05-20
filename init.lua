@@ -4,7 +4,6 @@ vim.pack.add({
     'https://github.com/neovim/nvim-lspconfig',
     'https://github.com/mason-org/mason.nvim',
     'https://github.com/tpope/vim-fugitive',
-    'https://github.com/github/copilot.vim',
     'https://github.com/nvim-lua/plenary.nvim',
     'https://github.com/nvim-telescope/telescope.nvim',
     'https://github.com/folke/which-key.nvim',
@@ -204,25 +203,6 @@ vim.opt.wildignore:append({"*.o", "*.obj", "*.pyc", "*.class", "*.jar" })
 -- Better indenting in visual mode
 vim.keymap.set("x", "<", "<gv", { desc = "Indent left and reselect" })
 vim.keymap.set("x", ">", ">gv", { desc = "Indent right and reselect" })
-
--- copilot
-vim.g.copilot_assume_mapped = true
-vim.g.copilot_no_tab_map = true
-vim.api.nvim_set_keymap('i', '<m-c>', 'copilot#Accept("<CR>")', {expr = true, silent = true})
-vim.api.nvim_set_keymap('i', '<M-e>', 'copilot#Dismiss()', {
-  expr = true,
-  silent = true,
-})
-
-vim.api.nvim_set_keymap('i', '<M-]>', 'copilot#Next()', {
-  expr = true,
-  silent = true,
-})
-
-vim.api.nvim_set_keymap('i', '<M-[>', 'copilot#Previous()', {
-  expr = true,
-  silent = true,
-})
 
 -- toggle spellcheck
 vim.keymap.set('n', '<leader>sp', ':setlocal spell!<CR>', { desc = "Toggle spellcheck" })
