@@ -8,13 +8,16 @@ vim.pack.add({
     'https://github.com/folke/which-key.nvim',
     'https://github.com/hrsh7th/nvim-cmp',
     'https://github.com/hrsh7th/cmp-nvim-lsp',
-    'https://github.com/echasnovski/mini.nvim',
+    'https://github.com/nvim-mini/mini.pick',
 })
 require("oil").setup()
 require("mason").setup()
-require('mini.picker').setup({
+require('mini.pick').setup({
   options = {
     use_cache = true,
+  },
+  window = {
+      preview = true,
   },
 })
 
@@ -184,15 +187,15 @@ vim.keymap.set("x", "<M-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 vim.keymap.set ('n', '<leader>cd', ':cd %:p:h<CR>:pwd<CR>', {desc ="Set working directory to current file"})
 -- telescope
 vim.keymap.set("n", "<leader>ff", function()
-    require("mini.picker").builtin.files()
+    require("mini.pick").builtin.files()
 end)
 
 vim.keymap.set("n", "<leader>fg", function()
-    require("mini.picker").builtin.grep_live()
+    require("mini.pick").builtin.grep_live()
 end)
 
 vim.keymap.set("n", "<leader>fb", function()
-    require("mini.picker").builtin.buffers()
+    require("mini.pick").builtin.buffers()
 end)
 
 -- Oil
