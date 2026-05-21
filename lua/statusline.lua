@@ -234,6 +234,7 @@ function _G.stl()
 
     " %#SLFile# ",
     filetype(),
+    " ",
 
     " ",
     filesize(),
