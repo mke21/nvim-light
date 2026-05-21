@@ -3,6 +3,7 @@
 vim.pack.add({
     'https://github.com/stevearc/oil.nvim',
     'https://github.com/neovim/nvim-lspconfig',
+    'https://github.com/romus204/tree-sitter-manager.nvim',
     'https://github.com/mason-org/mason.nvim',
     'https://github.com/tpope/vim-fugitive',
     'https://github.com/github/copilot.vim',
@@ -10,6 +11,18 @@ vim.pack.add({
     'https://github.com/hrsh7th/nvim-cmp',
     'https://github.com/hrsh7th/cmp-nvim-lsp',
     'https://github.com/nvim-mini/mini.pick',
+})
+require("tree-sitter-manager").setup({
+    ensure_installed = { "lua", "javascript", "typescript", "python", "markdown" },
+    highlight = true,
+})
+
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "lua", "python", "typescript", "javascript", "markdown" },
+  callback = function()
+    pcall(vim.treesitter.start)
+  end,
 })
 require("oil").setup()
 require("mason").setup()
