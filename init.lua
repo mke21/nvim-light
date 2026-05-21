@@ -1,15 +1,20 @@
 -- Packages
 vim.pack.add({
-  'https://github.com/stevearc/oil.nvim',
-  'https://github.com/neovim/nvim-lspconfig',
-  'https://github.com/romus204/tree-sitter-manager.nvim',
-  'https://github.com/mason-org/mason.nvim',
-  'https://github.com/tpope/vim-fugitive',
-  'https://github.com/github/copilot.vim',
-  'https://github.com/folke/which-key.nvim',
-  'https://github.com/hrsh7th/nvim-cmp',
-  'https://github.com/hrsh7th/cmp-nvim-lsp',
-  'https://github.com/nvim-mini/mini.pick',
+  -- programming
+  'https://github.com/neovim/nvim-lspconfig', -- Get LSP going
+  'https://github.com/mason-org/mason.nvim', -- manage LSP servers
+  'https://github.com/hrsh7th/nvim-cmp', -- autocompletion plugin
+  'https://github.com/hrsh7th/cmp-nvim-lsp', -- LSP source for nvim-cmp
+
+  'https://github.com/romus204/tree-sitter-manager.nvim', -- manage tree-sitter parsers, nvim-treesitter is no longer maintained
+
+  'https://github.com/github/copilot.vim', -- github copilot
+
+  -- extra ui functionality
+  'https://github.com/nvim-mini/mini.pick', -- fuzzy finder as replacement for telescope
+  'https://github.com/stevearc/oil.nvim', -- file explorer that replaces netrw
+  'https://github.com/tpope/vim-fugitive', -- git integration
+  'https://github.com/folke/which-key.nvim', -- show possible keybindings
 })
 require("tree-sitter-manager").setup({
   ensure_installed = { 
