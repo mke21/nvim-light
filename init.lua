@@ -1,4 +1,3 @@
-
 -- Packages
 vim.pack.add({
     'https://github.com/stevearc/oil.nvim',
@@ -13,17 +12,22 @@ vim.pack.add({
     'https://github.com/nvim-mini/mini.pick',
 })
 require("tree-sitter-manager").setup({
-    ensure_installed = { "lua", "javascript", "typescript", "python", "markdown" },
-    highlight = true,
+    ensure_installed = { 
+      "lua",
+      "javascript",
+      "typescript",
+      "python",
+      "markdown",
+      "tsx",
+      "css",
+      "html",
+    },
+    highlight = {
+        enable = true,
+    }
 })
 
 
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "lua", "python", "typescript", "javascript", "markdown" },
-  callback = function()
-    pcall(vim.treesitter.start)
-  end,
-})
 require("oil").setup()
 require("mason").setup()
   local win_config = function()
