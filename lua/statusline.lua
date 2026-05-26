@@ -159,6 +159,11 @@ local function update()
   local status_bg = "#1e1e1e"
   local mcol = mode_color(S.mode)
 
+vim.api.nvim_set_hl(0, "SLModeInactive", {
+  fg = "#1e1e1e",
+  bg = "#444444",
+  bold = true,
+})
   vim.api.nvim_set_hl(0, "SLMode", {
     fg = status_bg,
     bg = mcol,
@@ -213,8 +218,38 @@ update()
 -- ----------------------------------------------------------------------------
 -- STATUSLINE RENDER (lualine-style pure function)
 -- ----------------------------------------------------------------------------
-
 function _G.stl()
+  local is_active = vim.g.statusline_winid == vim.api.nvim_get_current_win()
+
+  if not is_active then
+    return table.concat({
+      "%#SLDim#",
+      " ",
+
+      " INACTIVE ",
+
+      "",
+
+      " %f %h%m%r ",
+
+      " ",
+      git_branch(),
+
+      " ",
+      filetype(),
+      " ",
+
+      " ",
+      filesize(),
+      " ",
+
+      "%=",
+
+      "  %l:%c %P ",
+    })
+  end
+
+  -- actieve window
   return table.concat({
     "%#SLDim#",
     " ",
